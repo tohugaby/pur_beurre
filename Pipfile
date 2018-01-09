@@ -9,6 +9,7 @@ name = "pypi"
 
 "flake8" = "*"
 requests = "*"
+mysql-connector-python = "*"
 
 
 [dev-packages]

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f731787343bd67d69f1fd291147ea10c90c02da5b85e30cdf464e0bf89d91d0a"
+            "sha256": "ccdcb82c7e41c16b8dfd08014098dbfd0734a1faffdc611ad7dd5d9a9194d884"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -9,9 +9,9 @@
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "4.14.11-1-ARCH",
+            "platform_release": "4.14.12-1-ARCH",
             "platform_system": "Linux",
-            "platform_version": "#1 SMP PREEMPT Wed Jan 3 07:02:42 UTC 2018",
+            "platform_version": "#1 SMP PREEMPT Fri Jan 5 18:19:34 UTC 2018",
             "python_full_version": "3.6.4",
             "python_version": "3.6",
             "sys_platform": "linux"
@@ -61,6 +61,21 @@
                 "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"
             ],
             "version": "==0.6.1"
+        },
+        "mysql-connector-python": {
+            "hashes": [
+                "sha256:edda285eeea5e48e0f450a20944633025192488d3afd737aa4f6fede90d71214",
+                "sha256:570b783857188b253ad690a62154b73fe26a9d598feca9b3ac0679848b6b4cc1",
+                "sha256:86c2554115a0fad32bbd0a60c3c1752e127fed10db5ef6984236a3482da3aa59",
+                "sha256:7714a294166f2035962f9e229c489cb8b1a3ac1dfc6ea2e226c9c838440c9d83",
+                "sha256:1c8e68e111ef14f056f4d20b58012e71b082f9665f1dbeb7e6018093a01811e3",
+                "sha256:b4f96afc0e08ef73b55b1b690784401edc707a3132a4ad0b9427c8114ef54b10",
+                "sha256:bbf5bbb29c9c75d9cb03b15aab1c21e2cffce5ba9fc79368d18c2bdcc842ef1a",
+                "sha256:99c5792434355d662edc659a78f4617f7a1421e9e1f7f152dd0bc1e6435f25ea",
+                "sha256:917c98b8a5ac754049bc8b328a06cb1e50fea1a405df4b21b613a87bcee318fc",
+                "sha256:90ea4ea81cd9803935ee262629d4d35488adc57e3bd63751ab6ebe1d499bc9af"
+            ],
+            "version": "==8.0.5"
         },
         "pycodestyle": {
             "hashes": [
