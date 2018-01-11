@@ -19,11 +19,36 @@ pip install pipenv
 
 ### Creating Database
 #### SQL script to create local database
-This part use mysql-connector-python lib in a procedural script to: 
-  - create connection to mysql,
+This part use mysql-connector-python lib in DatabaseBuilder class.
+ Following action are made in a procedural script using DatabaseBuilder instance methods: 
+  - get connection to mysql:
   - create database,
   - create table,
   - create indexes and constraints
+  
+  ```python
+from database_constructor.builder import DatabaseBuilder
+HOST = '127.0.0.1'
+DB_NAME = 'purbeurre'
+SQL_REQUESTS = {
+    'tables': {
+        'users': """SELECT 'test table users creation'""",
+        'categories': """SELECT 1""",
+    },
+    'constraints': {
+        'constraint_1':"""SELECT 'test constraints'"""
+    }
+}
+HOST
+new_database = DatabaseBuilder(host=HOST, database=DB_NAME, sql_requests=SQL_REQUESTS) 
+# just test connection getter
+new_database.get_connection()
+# create database using database name from instance attribute
+new_database.create_database()
+# lauch all the request from instance
+new_database.execute_sql_requests()
+
+```
   
  For connection initialization you need a mysql username and password. 
  Used mysql user need sufficient privileges to create database.
