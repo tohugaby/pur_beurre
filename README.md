@@ -29,18 +29,18 @@ This part use mysql-connector-python lib in DatabaseBuilder class.
   ```python
 from database_constructor.builder import DatabaseBuilder
 HOST = '127.0.0.1'
-DB_NAME = 'purbeurre'
+DATABASE_NAME = 'purbeurre'
 SQL_REQUESTS = {
-    'tables': {
-        'users': """SELECT 'test table users creation'""",
-        'categories': """SELECT 1""",
-    },
-    'constraints': {
-        'constraint_1':"""SELECT 'test constraints'"""
-    }
+    'tables': [
+        ('user',"""SELECT 1"""),
+        ('category', """SELECT 2"""),
+    ],
+    'constraints': [
+        ('constraint_1',"""SELECT 'test constraints'""")
+        ]   
 }
 HOST
-new_database = DatabaseBuilder(host=HOST, database=DB_NAME, sql_requests=SQL_REQUESTS) 
+new_database = DatabaseBuilder(host=HOST, database=DATABASE_NAME, sql_requests=SQL_REQUESTS) 
 # just test connection getter
 new_database.get_connection()
 # create database using database name from instance attribute

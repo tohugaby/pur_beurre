@@ -1,25 +1,14 @@
+# -*- coding: utf8 -*-
 import getpass
+import logging
+
 import mysql.connector
 from mysql.connector import errorcode
 
-import logging
+from database_constructor.settings import HOST, DATABASE_NAME, SQL_REQUESTS
 
 logger = logging.getLogger(__name__)
-
-HOST = '127.0.0.1'
-DB_NAME = 'purbeurre'
-SQL_REQUESTS = {
-    'tables': {
-        'users': """SELECT 'youpi'""",
-        'categories': """SELECT 1""",
-        'products': "",
-        "product_category": "",
-        "favorites": ""
-    },
-    'constraints': {},
-    'indexes': {}
-
-}
+logger.setLevel('INFO')
 
 
 class ConnectionManager(object):
@@ -36,15 +25,15 @@ class ConnectionManager(object):
 
     def __enter__(self):
         if hasattr(self, 'database'):
-            self.cnx = mysql.connector.connect(user=self.user, password=self.password,
-                                               host=self.host, database=self.database)
+            self.connection = mysql.connector.connect(user=self.user, password=self.password,
+                                                      host=self.host, database=self.database)
         else:
-            self.cnx = mysql.connector.connect(user=self.user, password=self.password,
-                                               host=self.host)
+            self.connection = mysql.connector.connect(user=self.user, password=self.password,
+                                                      host=self.host)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.cnx.close()
+        self.connection.close()
 
 
 class CursorManager(object):
@@ -76,23 +65,33 @@ class DatabaseBuilder:
         self.sql_requests = sql_requests
         self.user = input('mysql username : ')
         self.password = getpass.getpass()
-        self.db_created = False
+        self.database_created = False
 
     def get_connection(self):
         """
         get connection to mysql using a context manager with or without database
         :return: a connection context manager instance
         """
-        if self.db_created:
-            print(self)
+        if self.database_created:
             return self.connection_manager(user=self.user, password=self.password,
                                            host=self.host, database=self.database,
                                            test=self.database)
         else:
-            logger.warning(
-                "Database %s is not created. Connection without database." % self.database)
-            return self.connection_manager(user=self.user, password=self.password,
-                                           host=self.host)
+            try:
+                return self.connection_manager(user=self.user, password=self.password,
+                                               host=self.host, database=self.database,
+                                               test=self.database)
+                self.database_created = True
+            except mysql.connector.Error as err:
+                if err.errno == errorcode.ER_BAD_DB_ERROR:
+                    logger.error('ERROR Bad or not existing database :%s')
+                else:
+                    logger.error('ERROR:%s' % err)
+                logger.warning(
+                    "Database %s is not created. Connection without database." % self.database)
+            finally:
+                return self.connection_manager(user=self.user, password=self.password,
+                                               host=self.host)
 
     def get_cursor(self, connection):
         """
@@ -106,32 +105,51 @@ class DatabaseBuilder:
         """Method to create database"""
 
         # open connection with a context manager
-        with self.get_connection() as cnx_context:
-            cnx = cnx_context.cnx
+        with self.get_connection() as connection_context:
+            connection = connection_context.connection
             # create cursor with a context manager
-            with self.get_cursor(cnx) as cursor_context:
+            with self.get_cursor(connection) as cursor_context:
                 cursor = cursor_context.cursor
                 try:
                     cursor.execute(
-                        "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME)
+                        "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(self.database)
                     )
-                    self.db_created = True
+                    self.database_created = True
 
                 except mysql.connector.errors.DatabaseError as err:
                     logger.warning("WARNING Failed creating database: {}".format(err))
-                    self.db_created = True
+                    self.database_created = True
 
                 except mysql.connector.Error as err:
                     logger.error("ERROR Failed creating database: {}".format(err))
 
             try:
-                cnx.database = DB_NAME
-                self.db_created = True
+                connection.database = self.database
+                self.database_created = True
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_BAD_DB_ERROR:
                     logger.error('ERROR Bad or not existing database :%s')
                 else:
                     logger.error('ERROR:%s' % err)
+
+    def drop_database(self):
+        # open connection with a context manager
+        with self.get_connection() as cnx_context:
+            connection = cnx_context.connection
+            # create cursor with a context manager
+            with self.get_cursor(connection) as cursor_context:
+                cursor = cursor_context.cursor
+                try:
+                    cursor.execute(
+                        "DROP DATABASE {}".format(self.database)
+                    )
+                    self.database_created = False
+
+                except mysql.connector.errors.DatabaseError as err:
+                    logger.warning("WARNING Failed deleting database: {}".format(err))
+
+                except mysql.connector.Error as err:
+                    logger.error("ERROR Failed creating database: {}".format(err))
 
     def load_requests_list(self):
         """
@@ -140,8 +158,8 @@ class DatabaseBuilder:
         """
         return NotImplemented
 
-
-    # TODO: to rewrite . Should requests parameter be a list of tuple or a dict?
+    # TODO: to rewrite to take one or several request. Make it enougth generic to be used in
+    # other methods (like create database or drop database)
     def execute_sql_requests(self, requests_dict: dict = None):
         """
         Execute all requests from instance attribute sql_requests or specific provided requests
@@ -149,17 +167,17 @@ class DatabaseBuilder:
         """
 
         # open connection with a context manager
-        with self.get_connection() as cnx_context:
-            cnx = cnx_context.cnx
+        with self.get_connection() as connection_context:
+            connection = connection_context.connection
             # create cursor with a context manager
-            with self.get_cursor(cnx) as cursor_context:
+            with self.get_cursor(connection) as cursor_context:
                 cursor = cursor_context.cursor
-                for query_type, sql_queries in self.sql_requests.items():
-                    for query_name, query in sql_queries.items():
-                        print(query)
+                for query_type, queries in self.sql_requests.items():
+                    for query in queries:
+                        logger.info("Execute query %s %s :%s" % (query_type, query[0], query[1]))
                         try:
                             if query:
-                                cursor.execute(query)
+                                cursor.execute(query[1])
                                 for res in cursor:
                                     print(res)
 
@@ -173,7 +191,7 @@ class DatabaseBuilder:
                             logger.error(e)
 
 
-new_database = DatabaseBuilder(host=HOST, database=DB_NAME, sql_requests=SQL_REQUESTS)
+new_database = DatabaseBuilder(host=HOST, database=DATABASE_NAME, sql_requests=SQL_REQUESTS)
 new_database.create_database()
 new_database.execute_sql_requests()
-
+#new_database.drop_database()
