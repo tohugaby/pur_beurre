@@ -5,8 +5,6 @@ import logging
 import mysql.connector
 from mysql.connector import errorcode
 
-from database_constructor.settings import HOST, DATABASE_NAME, SQL_REQUESTS
-
 logger = logging.getLogger(__name__)
 logger.setLevel('INFO')
 
@@ -33,6 +31,7 @@ class ConnectionManager(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.connection.commit()
         self.connection.close()
 
 
@@ -160,38 +159,31 @@ class DatabaseBuilder:
 
     # TODO: to rewrite to take one or several request. Make it enougth generic to be used in
     # other methods (like create database or drop database)
-    def execute_sql_requests(self, requests_dict: dict = None):
+    def execute_sql_requests(self, requests: list = None):
         """
         Execute all requests from instance attribute sql_requests or specific provided requests
         :return:
         """
-
+        sql_requests= requests if requests else self.sql_requests
         # open connection with a context manager
         with self.get_connection() as connection_context:
             connection = connection_context.connection
             # create cursor with a context manager
             with self.get_cursor(connection) as cursor_context:
                 cursor = cursor_context.cursor
-                for query_type, queries in self.sql_requests.items():
-                    for query in queries:
-                        logger.info("Execute query %s %s :%s" % (query_type, query[0], query[1]))
-                        try:
-                            if query:
-                                cursor.execute(query[1])
-                                for res in cursor:
-                                    print(res)
+                for query in sql_requests:
+                    logger.info("Execute query %s %s :%s" % (query[0], query[1], query[2]))
+                    try:
+                        if query[2]:
+                            cursor.execute(query[2])
+                            for res in cursor:
+                                print(res)
 
-                        except mysql.connector.errors.InternalError as err:
-                            print(err.msg)
-                            if err.msg == 'Unread result found':
-                                pass
-                            else:
-                                raise err
-                        except Exception as e:
-                            logger.error(e)
-
-
-new_database = DatabaseBuilder(host=HOST, database=DATABASE_NAME, sql_requests=SQL_REQUESTS)
-new_database.create_database()
-new_database.execute_sql_requests()
-#new_database.drop_database()
+                    except mysql.connector.errors.InternalError as err:
+                        print(err.msg)
+                        if err.msg == 'Unread result found':
+                            pass
+                        else:
+                            raise err
+                    except Exception as e:
+                        logger.error(e)

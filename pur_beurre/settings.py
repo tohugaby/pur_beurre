@@ -1,4 +1,9 @@
 # -*- coding: utf8 -*-
+import os
+
+ROOT_DIR_PATH = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+JSON_DIR_NAME = 'json_files'
+JSON_DIR_PATH = os.path.join(ROOT_DIR_PATH, JSON_DIR_NAME)
 
 # MYSQL REQUESTS
 user = """
@@ -41,7 +46,6 @@ CREATE TABLE IF NOT EXISTS Product_category (
   ENGINE=InnoDB
 """
 
-
 favorite = """
 CREATE TABLE IF NOT EXISTS Favorite (
   product_id INT UNSIGNED NOT NULL,
@@ -53,20 +57,15 @@ CREATE TABLE IF NOT EXISTS Favorite (
   ENGINE=InnoDB
 """
 
-
-
 # DATABASE PARAMETERS
 HOST = '127.0.0.1'
 DATABASE_NAME = 'purbeurre'
-SQL_REQUESTS = {
-    'tables': [
-        ('user', user),
-        ('category', category),
-        ('product', product),
-        ('product_category', product_category),
-        ('favorite', favorite)
-    ],
-    'constraints': {},
-    'indexes': {}
-
-}
+SQL_REQUESTS = [
+    ('table', 'user', user),
+    ('table', 'category', category),
+    ('table', 'product', product),
+    ('table', 'product_category', product_category),
+    ('table', 'favorite', favorite),
+    ('constraint', None, None),
+    ('index', None, None)
+]

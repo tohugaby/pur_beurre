@@ -4,7 +4,11 @@ import json
 from math import ceil
 
 import os
+
+import re
 import requests
+
+from pur_beurre.settings import JSON_DIR_PATH
 
 
 class DataGetter:
@@ -19,8 +23,16 @@ class DataGetter:
     filename = 'data.json'
 
     def get_paginated_url(self, url, page):
+        """
+        if api provide several pages for a ressource, the ressource root url is rewritted for
+        each requested page.
+        :param url: root url for the ressource
+        :param page: number of requested page.
+        :return: paginated url
+        """
+        url_without_extension = re.split(r'\.json', url)[0]
         if self.paginated_data:
-            return url + '/' + str(page) + '.json'
+            return url_without_extension + '/' + str(page) + '.json'
         else:
             return url
 
@@ -28,10 +40,20 @@ class DataGetter:
         print("getting data from %s" % (url))
         return requests.get(url).json()
 
+    @property
+    def file_path(self):
+
+        if os.path.exists(JSON_DIR_PATH):
+            file_path = os.path.join(JSON_DIR_PATH, self.filename)
+        else:
+            os.mkdir(JSON_DIR_PATH)
+            file_path = os.path.join(JSON_DIR_PATH, self.filename)
+        return file_path
+
     def write_file(self):
         url = self.get_paginated_url(self.root_url, self.first_page)
 
-        with open(self.filename, 'w') as new_file:
+        with open(self.file_path, 'w') as new_file:
             data = self.get_data(url)
             results_list = data[self.json_data_key]
 
@@ -50,42 +72,17 @@ class DataGetter:
 
 
 class ProductDataGetter(DataGetter):
-    root_url = 'https://fr.openfoodfacts.org/purchase-place/france/language/francais'
+    root_url = 'https://fr.openfoodfacts.org/lieu-de-vente/france/lieu-de-fabrication/france.json'
     first_page = 1
     paginated_data = True
     # page_getter_limit = 2
     json_data_key = 'products'
-    filename = 'products.json'
+    filename = 'Product.json'
 
 
 class CategoryDataGetter(DataGetter):
-    root_url = 'https://fr.openfoodfacts.org/category.json'
+    root_url = 'https://fr.openfoodfacts.org/categories.json'
     first_page = 1
     paginated_data = False
     json_data_key = 'tags'
-    filename = 'category.json'
-
-
-def main():
-    # cat = CategoryDataGetter()
-    # cat.write_file()
-
-    # prod = ProductDataGetter()
-    # prod.page_getter_limit = 10
-    # prod.write_file()
-
-    json_file = os.path.abspath('products.json')
-
-    with open(json_file, 'r') as file:
-        json_list = json.loads(file.read())
-        print(len(json_list))
-        for key in json_list[0].keys():
-            print(key)
-
-        new_list = [dict(code=product['code'], product_name=product['product_name']) for
-                    product in json_list]
-        print(new_list[:3])
-
-
-if __name__ == '__main__':
-    main()
+    filename = 'Category.json'
