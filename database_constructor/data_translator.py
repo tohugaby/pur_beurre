@@ -55,7 +55,7 @@ class BaseDataToInsertQueryTranslator:
         :return: a string containing sql query
         """
 
-        #TODO: rewrite sql query with %s syntax and pass parameter to
+        # TODO: rewrite sql query with %s syntax and pass parameter to
         sql_query = "INSERT INTO {} ( ".format(self.table)
         filtered_values = self.filtered_values()
 
@@ -64,9 +64,12 @@ class BaseDataToInsertQueryTranslator:
         for new_row in filtered_values:
             sql_query += "("
             for i in range(len(self.fields_translations)):
-
-                sql_query += "'{}'".format(new_row[self.ordered_sql_fields_names[0][i]].replace(
-                    "'", " "))
+                try:
+                    field_name = self.ordered_sql_fields_names[0][i]
+                    field_value = new_row[field_name].replace("'", " ")
+                except KeyError as e:
+                    field_value=""
+                sql_query += "'{}'".format(field_value)
                 if i < len(self.fields_translations) - 1:
                     sql_query += ","
             sql_query += ")"

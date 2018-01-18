@@ -1,4 +1,3 @@
-import json
 import os
 
 from database_constructor.data_translator import JSONDataToInsertQueryTranslator, FieldTranslator
@@ -23,40 +22,41 @@ def main():
     cat.write_file()
 
     prod = ProductDataGetter()
-    # prod.page_getter_limit = 10
+    prod.page_getter_limit = 1
     prod.write_file()
-
-    # =================================================================================================
-    # TEST JSON DATA
-    # =================================================================================================
-
-    # json_file = os.path.join(JSON_DIR_PATH,'Product.json')
-    #
-    # with open(json_file, 'r') as file:
-    #     json_list = json.loads(file.read())
-    #     print(len(json_list))
-    #     for key in json_list[0].keys():
-    #         print(key)
-    #
-    #     new_list = [dict(code=product['code'], product_name=product['product_name']) for
-    #                 product in json_list]
-    #     print(new_list[:3])
 
     # =================================================================================================
     # TRANSLATE DATA TO SQL QUERY
     # =================================================================================================
-    json_file = os.path.join(JSON_DIR_PATH, 'Category.json')
-
-    category_fields_translations = (FieldTranslator('id', 'id'), FieldTranslator('name',
-                                                                                 'cat_name'))
-
-    sql_insert_query = JSONDataToInsertQueryTranslator(DATABASE_NAME, json_file,
-                                                       category_fields_translations, 'Category')
-
+    # Insert Categories
+    categories_json_file = os.path.join(JSON_DIR_PATH, 'Category.json')
+    category_fields_translations = [
+        FieldTranslator('id', 'id'), FieldTranslator('name', 'cat_name')]
+    category_sql_insert_query = JSONDataToInsertQueryTranslator(DATABASE_NAME,
+                                                                categories_json_file,
+                                                                category_fields_translations,
+                                                                'Category')
     category_insert_query = [
-        ('insert', 'Category', sql_insert_query.translate_object_to_sql_query()), ]
-
+        ('insert', 'Category', category_sql_insert_query.translate_object_to_sql_query()), ]
     new_database.execute_sql_requests(category_insert_query)
+
+    # Insert Products
+    products_json_file = os.path.join(JSON_DIR_PATH, 'Product.json')
+    product_fields_translations = [
+        FieldTranslator('code', 'open_food_facts_id'),
+        FieldTranslator('product_name', 'product_name'),
+        FieldTranslator('generic_name', 'description'),
+        FieldTranslator('url', 'open_food_facts_link'),
+        FieldTranslator('stores', 'first_seller'),
+        FieldTranslator('nutrition_grade_fr', 'nutrition_grade_fr')
+    ]
+    products_sql_insert_query = JSONDataToInsertQueryTranslator(DATABASE_NAME, products_json_file,
+                                                                product_fields_translations,
+                                                                table_name='Product')
+
+    product_insert_query = [(
+        'insert', 'Product', products_sql_insert_query.translate_object_to_sql_query()), ]
+    new_database.execute_sql_requests(product_insert_query)
 
     # =================================================================================================
     # DATABASE DELETE

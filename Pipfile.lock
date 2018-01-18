@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ccdcb82c7e41c16b8dfd08014098dbfd0734a1faffdc611ad7dd5d9a9194d884"
+            "sha256": "45c4bc5951f6b3f3b5288b830cd5f6036b93e5fe86cd2d78f5e9414c650f1096"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -9,9 +9,9 @@
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "4.14.12-1-ARCH",
+            "platform_release": "4.14.13-1-ARCH",
             "platform_system": "Linux",
-            "platform_version": "#1 SMP PREEMPT Fri Jan 5 18:19:34 UTC 2018",
+            "platform_version": "#1 SMP PREEMPT Wed Jan 10 11:14:50 UTC 2018",
             "python_full_version": "3.6.4",
             "python_version": "3.6",
             "sys_platform": "linux"

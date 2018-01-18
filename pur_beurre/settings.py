@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS Category (
 
 product = """
 CREATE TABLE IF NOT EXISTS Product (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  open_food_facts_id INT UNSIGNED UNIQUE ,
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  open_food_facts_id BIGINT UNSIGNED UNIQUE,
   product_name VARCHAR(255) NOT NULL,
   description TEXT,
   open_food_facts_link VARCHAR(255),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS Product (
 
 product_category = """
 CREATE TABLE IF NOT EXISTS Product_category (
-  product_id INT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
   category_id VARCHAR(255) NOT NULL,
   CONSTRAINT pk_product_category PRIMARY KEY (product_id, category_id),
   CONSTRAINT fk_product_id FOREIGN KEY (product_id) REFERENCES Product(id),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS Product_category (
 
 favorite = """
 CREATE TABLE IF NOT EXISTS Favorite (
-  product_id INT UNSIGNED NOT NULL,
+  product_id BIGINT UNSIGNED NOT NULL,
   user_id INT  UNSIGNED NOT NULL,
   CONSTRAINT pk_favorite PRIMARY KEY (product_id, user_id),
   CONSTRAINT fk_favorite_product_id FOREIGN KEY (product_id) REFERENCES Product(id),

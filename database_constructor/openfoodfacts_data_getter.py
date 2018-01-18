@@ -59,7 +59,7 @@ class DataGetter:
 
             if self.paginated_data:
                 nb_pages = self.page_getter_limit
-                if self.page_getter_limit < 2:
+                if self.page_getter_limit < 1:
                     nb_pages = int(ceil(float(data['count']) / float(data['page_size'])))
                 print("Nombre de pages %s" % (nb_pages))
 
