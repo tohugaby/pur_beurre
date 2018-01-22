@@ -51,7 +51,7 @@ class CursorManager(object):
         self.cursor.close()
 
 
-class DatabaseBuilder:
+class Database:
     """
     Database builder class
     """
@@ -77,10 +77,11 @@ class DatabaseBuilder:
                                            test=self.database)
         else:
             try:
-                return self.connection_manager(user=self.user, password=self.password,
-                                               host=self.host, database=self.database,
-                                               test=self.database)
+                connection = self.connection_manager(user=self.user, password=self.password,
+                                                     host=self.host, database=self.database,
+                                                     test=self.database)
                 self.database_created = True
+                return connection
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_BAD_DB_ERROR:
                     logger.error('ERROR Bad or not existing database :%s')
@@ -142,7 +143,9 @@ class DatabaseBuilder:
                     cursor.execute(
                         "DROP DATABASE {}".format(self.database)
                     )
+
                     self.database_created = False
+                    return cursor
 
                 except mysql.connector.errors.DatabaseError as err:
                     logger.warning("WARNING Failed deleting database: {}".format(err))
@@ -150,21 +153,13 @@ class DatabaseBuilder:
                 except mysql.connector.Error as err:
                     logger.error("ERROR Failed creating database: {}".format(err))
 
-    def load_requests_list(self):
-        """
-        make a list of tuple from sql_requests_dict
-        :return:
-        """
-        return NotImplemented
-
-    # TODO: to rewrite to take one or several request. Make it enougth generic to be used in
-    # other methods (like create database or drop database)
     def execute_sql_requests(self, requests: list = None):
         """
         Execute all requests from instance attribute sql_requests or specific provided requests
         :return:
         """
-        sql_requests= requests if requests else self.sql_requests
+        results = []
+        sql_requests = requests if requests else self.sql_requests
         # open connection with a context manager
         with self.get_connection() as connection_context:
             connection = connection_context.connection
@@ -176,8 +171,7 @@ class DatabaseBuilder:
                     try:
                         if query[2]:
                             cursor.execute(query[2])
-                            for res in cursor:
-                                print(res)
+                            results.append(list(cursor))
 
                     except mysql.connector.errors.InternalError as err:
                         print(err.msg)
@@ -187,3 +181,4 @@ class DatabaseBuilder:
                             raise err
                     except Exception as e:
                         logger.error(e)
+        return results
