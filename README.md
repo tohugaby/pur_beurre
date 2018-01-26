@@ -15,6 +15,20 @@ You need to install pipenv on your system.
 pip install pipenv
 ```
 
+## Mysql/Mariadb tips
+If there are a lot of data to insert check this in  mysql CLI:
+
+```mysql
+show variables like 'max_allowed_packet';
+```
+If result is something like 1048576 bytes (1MB), you can increase it to 524288000 in my.cnf file
+ or with mysql command:
+ 
+ ```mysql
+SET GLOBAL max_allowed_packet=524288000;
+```
+
+
 ## Writing the settings file
 
 You can copy settings sample to create your own settings file.

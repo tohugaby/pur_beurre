@@ -5,6 +5,8 @@ import logging
 import mysql.connector
 from mysql.connector import errorcode
 
+from pur_beurre import settings
+
 logger = logging.getLogger(__name__)
 logger.setLevel('INFO')
 
@@ -40,11 +42,12 @@ class CursorManager(object):
     Context manager for mysql cursor
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, dictionary=False):
         self.connection = connection
+        self.dictionary = dictionary
 
     def __enter__(self):
-        self.cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor(dictionary=self.dictionary)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -58,13 +61,16 @@ class Database:
     connection_manager = ConnectionManager
     cursor_manager = CursorManager
 
-    def __init__(self, host, database, sql_requests: dict):
+    def __init__(self, host, database, sql_requests=[], database_exist=False):
         self.host = host
         self.database = database
         self.sql_requests = sql_requests
-        self.user = input('mysql username : ')
-        self.password = getpass.getpass()
-        self.database_created = False
+
+        self.user = input(
+            'mysql username : ') if settings.mysql_username == '' else settings.mysql_username
+        self.password = getpass.getpass() if settings.mysql_password == '' else settings.mysql_password
+
+        self.database_created = database_exist
 
     def get_connection(self):
         """
@@ -93,13 +99,13 @@ class Database:
                 return self.connection_manager(user=self.user, password=self.password,
                                                host=self.host)
 
-    def get_cursor(self, connection):
+    def get_cursor(self, connection, dictionary=False):
         """
         create a cursor context manager on provided connection.
         :param connection:
         :return: a cursor context manager instance
         """
-        return self.cursor_manager(connection)
+        return self.cursor_manager(connection, dictionary)
 
     def create_database(self):
         """Method to create database"""
@@ -153,18 +159,21 @@ class Database:
                 except mysql.connector.Error as err:
                     logger.error("ERROR Failed creating database: {}".format(err))
 
-    def execute_sql_requests(self, requests: list = None):
+    def execute_sql_requests(self, requests: list = None, **kwargs):
         """
         Execute all requests from instance attribute sql_requests or specific provided requests
         :return:
         """
+        dictionary = False
+        if 'dictionary' in kwargs.keys():
+            dictionary = kwargs['dictionary']
         results = []
         sql_requests = requests if requests else self.sql_requests
         # open connection with a context manager
         with self.get_connection() as connection_context:
             connection = connection_context.connection
             # create cursor with a context manager
-            with self.get_cursor(connection) as cursor_context:
+            with self.get_cursor(connection, dictionary=dictionary) as cursor_context:
                 cursor = cursor_context.cursor
                 for query in sql_requests:
                     logger.info("Execute query %s %s :%s" % (query[0], query[1], query[2]))

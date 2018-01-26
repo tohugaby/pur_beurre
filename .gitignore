@@ -106,3 +106,5 @@ ENV/
 
 # created test json files
 *.json
+
+pur_beurre/mysql_auth_info.py
