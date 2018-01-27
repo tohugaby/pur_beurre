@@ -6,24 +6,26 @@ if __name__ == '__main__':
     # CREATE SESSION
     # =============================================================================================
 
-    new_session = Session(User('tom', 'tom'))
-
-    # =============================================================================================
-    # ACTIVITY MENU
-    # =============================================================================================
-# TODO: find another system to automaticaly save previous menu in Session instance . maybe with
-    # a decorator on call methods or a context manager
-    activity_choice = ActivityChoiceMenu()
-    category_choice_menu = activity_choice()
-    product_choice_menu = category_choice_menu()
-    Session.previous_menu = category_choice_menu
-    product = product_choice_menu()
-    Session.previous_menu = product_choice_menu
-    print(product)
-    Session.previous_menu = product
-    print(product.get_best_substitutes())
-
-
+    with Session(user=User('tom', 'tom')) as new_session:
+        # =========================================================================================
+        # ACTIVITIES MENU
+        # =========================================================================================
+        activity_choice = ActivityChoiceMenu()
+        # =========================================================================================
+        # CATEGORIES MENU
+        # =========================================================================================
+        category_choice_menu = activity_choice()
+        # =========================================================================================
+        # PRODUCTS MENU
+        # =========================================================================================
+        product_choice_menu = category_choice_menu()
+        # =========================================================================================
+        # PRODUCT AND SUBSTITUTE
+        # =========================================================================================
+        product = product_choice_menu()
+        print(product)
+        substitute_id = product.print_substitute()
+        product.save_to_favorites(new_session.user.id, substitute_id)
 
     # if scenario 1:
     #     categorie

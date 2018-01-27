@@ -85,6 +85,9 @@ class Product(SqlData):
     """
 
     def __str__(self):
+        return self.show_product(**self.data)
+
+    def show_product(self, **data):
         product_card = """
         code: {id}    nom: {product_name}
         categories: {categories}  
@@ -92,9 +95,19 @@ class Product(SqlData):
         description: {description}
         magasin: {first_seller}
         url: {open_food_facts_url}
-        """.format(**self.data)
+        """.format(**data)
 
         return product_card
+
+    def category_name(self):
+        query = [
+            (
+                'select',
+                'Category',
+                """SELECT cat_name FROM Category WHERE id='%s'""" % self.kwargs['category_id']
+            ),
+        ]
+        return self.database.execute_sql_requests(query, dictionary=True)[0][0]
 
     @property
     def data(self):
@@ -104,7 +117,8 @@ class Product(SqlData):
              """
 SELECT 
 DISTINCT P.id,P.product_name,P.description,P.nutrition_grade_fr,P.first_seller,
-P.open_food_facts_url , GROUP_CONCAT(C.cat_name ORDER BY cat_name SEPARATOR ' | ') as categories
+P.open_food_facts_url , GROUP_CONCAT(DISTINCT(C.cat_name) ORDER BY cat_name SEPARATOR ' | ') as 
+categories
 FROM Product P
 INNER JOIN Product_category Pc ON P.id = Pc.product_id
 INNER JOIN Category C ON Pc.category_id = C.id
@@ -112,19 +126,19 @@ WHERE P.id='%s'""" % self.primary_key), ]
 
         return self.database.execute_sql_requests(query, dictionary=True)[0][0]
 
-    def get_best_substitutes(self):
+    def get_best_substitute(self):
         query_str = """
-                  SELECT 
- DISTINCT P.id,P.product_name,P.description,P.nutrition_grade_fr,P.first_seller,
- P.open_food_facts_url , 
- GROUP_CONCAT(C.cat_name ORDER BY cat_name SEPARATOR ' | ') AS categories
- FROM Product P
- INNER JOIN Product_category Pc ON P.id = Pc.product_id
- INNER JOIN Category C ON Pc.category_id = C.id
- WHERE P.id<>'%s' 
- AND C.id='%s' 
- AND P.nutrition_grade_fr < '%s' 
- AND P.nutrition_grade_fr <> '%s'
+                 SELECT 
+                 DISTINCT P.id,P.product_name,P.description,P.nutrition_grade_fr,P.first_seller,
+                 P.open_food_facts_url , 
+                 GROUP_CONCAT(DISTINCT(C.cat_name) ORDER BY cat_name SEPARATOR ' | ') AS categories
+                 FROM Product P
+                 INNER JOIN Product_category Pc ON P.id = Pc.product_id
+                 INNER JOIN Category C ON Pc.category_id = C.id
+                 WHERE P.id<>'%s' 
+                 AND C.id='%s' 
+                 AND P.nutrition_grade_fr < '%s' 
+                 AND P.nutrition_grade_fr <> '%s'
  """
 
         query = [('select',
@@ -137,3 +151,37 @@ WHERE P.id='%s'""" % self.primary_key), ]
                  ]
 
         return self.database.execute_sql_requests(query, dictionary=True)[0][0]
+
+    def print_substitute(self):
+        data = {'substitute': self.show_product(**self.get_best_substitute()),
+                **self.category_name()}
+        print("""
+        Meilleur produit de remplacement trouvé dans la catégorie {cat_name}
+        {substitute}
+        """.format(**data))
+        return self.get_best_substitute()['id']
+
+    def save_to_favorites(self, user_id, product_id):
+        """
+        Save substitute product in provided user favorites
+        :param user_id: user primary key value in User table
+        :param product_id: product primary key in Product table
+        :return: favorite id
+        """
+        choice = str()
+        while choice not in ("y", "n"):
+            choice = input(
+                "Voulez-vous sauvegarder ce produit de remplacement dans vos favoris?[y/n]")
+        if choice == "y":
+            query = [
+                (
+                    'insert',
+                    'Favorites',
+                    """
+                    INSERT INTO Favorite(user_id, product_id) VALUES ('%s','%s')
+                    """ % (user_id, product_id)
+                ),
+            ]
+            self.database.execute_sql_requests(query)
+        else:
+            return
