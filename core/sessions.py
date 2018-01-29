@@ -2,6 +2,8 @@ from core.authenthication import User
 from database_constructor.database_builder import Database
 from pur_beurre.settings import HOST, DATABASE_NAME
 
+DEFAULT_DATABASE = Database(host=HOST, database=DATABASE_NAME, database_exist=True)
+
 
 class Session:
     """
@@ -28,6 +30,3 @@ class Session:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__class__.add_instance(None)
-
-
-DEFAULT_DATABASE = Database(host=HOST, database=DATABASE_NAME, database_exist=True)

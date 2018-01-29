@@ -1,21 +1,26 @@
 # PUR_BEURRE
 
-Supported versions of python: 3.4, 3.5, 3.6
+Supported versions of python: **3.4, 3.5, 3.6**
+
 
 ## What is Pur Beurre ?
+
 Openclassrooms project 5: Use Open Food Facts database to substitute food products with an 
 healthier one.
 
+
 ## Getting starded
 
-Pipenv is used to manage dependencies and virtual environment. 
+**Pipenv** is used to manage dependencies and virtual environment. 
 You need to install pipenv on your system.
 
 ```
 pip install pipenv
 ```
 
+
 ## Mysql/Mariadb tips
+
 If there are a lot of data to insert check this in  mysql CLI:
 
 ```mysql
@@ -157,13 +162,11 @@ JSON_FILES_PATH = {
 ```
 
 
+## Creating Database
+### SQL script to create local database
 
-## Features
-
-### Creating Database
-#### SQL script to create local database
-This part use mysql-connector-python lib in Database class.
- Following action are made in a procedural script using Database instance methods: 
+This part use **mysql-connector-python** lib in **Database** class.
+ Following action are made in a procedural script using **Database** instance methods: 
   - get connection to mysql:
   - create database,
   - create table,
@@ -199,9 +202,11 @@ new_database.execute_sql_requests()
  For connection initialization you need a mysql username and password. 
  Used mysql user need sufficient privileges to create database.
  Password is not echoed.
+
  
-#### Getting data from OpenFoodFacts API
-Collection of data from OpenFoodFacts API is based on DataGetter instances.
+### Getting data from OpenFoodFacts API
+
+Collection of data from OpenFoodFacts API is based on **DataGetter** instances.
 Using write_file method create a json file of the received data.
 
 Usage:
@@ -223,8 +228,9 @@ You can create a 'mysql_auth_info' module to store user and password to access d
 USER, PASSWORD
 
 
-#### Data integration script
-Data integration uses FieldTranslator to illustrate correspondence between a json value id and 
+### Data integration script
+
+Data integration uses **FieldTranslator** to illustrate correspondence between a json value id and 
 table field label.
 
 ```python
@@ -235,8 +241,8 @@ category_fields_translations = [FieldTranslator('id', 'id'), FieldTranslator('na
 ```
 
 
-JSONDataToInsertQueryTranslator inherited from BaseDataToInsertQueryTranslator translate json 
-data to an sql insert query thanks to its translate_object_to_sql_query method.
+**JSONDataToInsertQueryTranslator** inherited from **BaseDataToInsertQueryTranslator** translate json 
+data to an sql insert query thanks to its **translate_object_to_sql_query** method.
 
 ```python
 
@@ -271,24 +277,67 @@ new_database.execute_sql_requests(category_insert_query)
 
 ```
 
-
-### User management
-#### User table in database
+## User management
+### User creation script
 
 To register a new app user in database, you can use 'create_user.py' script.
 
-#### Authentication module
-#### Authentication interface
 
-### Product substitution
+### Authentication
 
-#### Categories getter
-#### Product getter
-#### Substitute View
+To store user authentication information during application use, **core.authentication** module 
+provide **User** class. You can instantiate it with database username and password which will be 
+checked in database.
 
-### Favorites management
+```python
+from core.authenthication import User
 
-#### Favorites setter
-#### Favorites getter
+user = User('your username', 'your password')
+```
+
+
+## Session
+
+**Session** instance is used as a context manager which store : **Database** instance, **User** instance
+ and first and previous ChoiceMenu instances in **Session** actual instance.
+ 
+```python
+from core.authenthication import User
+from core.sessions import Session
+
+with Session(user=User('your username', 'your password')) as new_session:
+    # your code here
+    pass
+```
+
+
+## Choice menus
+
+**ChoiceMenu** base class and child classes have a **\_\_call\_\_** method which return next class 
+instantiated with needed kwargs.
+Inherited classes can override methods:
+- **get_text** : to define explanation text printed before list of choices
+- **get_choice** : to define the way to get list of choices
+- **print_choices** : to define the way to print choices
+- **get_next_class** : to define class used by \_\_call\_\_ to return instance of
+- **next_kwargs** :  to define kwargs needed by "next class" \_\_init\_\_ method.
+
+It has also a class attribute **SESSION_CLASS** used to update session status (previous and first 
+menu instances) during instance call
+
+**SqlChoiceMenu** class (and its childs) inherited from **ChoiceMenu** has extra attributes and methods.
+**query** and **query_parameters** attributes used by **get_query** method (to get a list of choices).
+Property **database** is used to get database to work with.
+
+
+## SQL objects
+
+Legacy **SqlData** class only contains \_\_init\_\_ method and \_\_str\_\_ method. It has 
+database, table, primary_key, kwargs attributes to identify sql element in database.
+
+**BaseProduct** and **Product** class are inherited from **SqlData** class. They implements new 
+methods to print product data and its substitute (only **Product** instances).
+Product class allows to save a substitute in user favorites.
+
 
 
