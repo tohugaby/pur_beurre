@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 import getpass
+import sys
 
 from database_constructor.database_builder import Database
 from pur_beurre.settings import HOST, DATABASE_NAME
@@ -102,7 +103,8 @@ class ChoiceMenu:
 
     def __call__(self, *args, **kwargs):
         """ Always proposes choices to user and return next action and its params as a result"""
-        self.base_call_process()
+        if not self.base_call_process():
+            return self.__class__.SESSION_CLASS.ACTUAL_INSTANCE.previous_menu()
         return self.choices[self.decision][1](**self.next_kwargs)
 
     def update_session(self):
@@ -115,7 +117,14 @@ class ChoiceMenu:
         """Base action to process in __call__ method"""
         self.print_choices()
         self.collect_choice()
+        if self.decision == 'q':
+            print('Exiting program')
+            sys.exit(0)
+        if self.decision == 'p':
+            print('going to previous menu')
+            return False
         self.update_session()
+        return True
 
     def print_choices(self):
         """Print explanation text and possible choices """
@@ -125,8 +134,17 @@ class ChoiceMenu:
 
     def collect_choice(self):
         """ collect inputed user choice"""
-        # TODO: need to make more reliable by managing bad inputs and propose to quit or go back
-        self.decision = int(input("Votre choix :")) - 1
+        self.decision = None
+        possible_choice = list(range(len(self.choices))) + ['q']
+        if self.__class__.SESSION_CLASS.ACTUAL_INSTANCE.previous_menu is not None:
+            possible_choice.append('p')
+        while self.decision not in possible_choice:
+            decision = input("Votre choix :")
+            try:
+                self.decision = int(decision) - 1
+            except ValueError as e:
+                print(self.decision)
+                self.decision = decision
 
     def get_text(self):
         """return choice explanation text"""
@@ -181,6 +199,7 @@ class SqlData:
     """
     Represent a sql data
     """
+    SESSION_CLASS = Session
     printed_fields = list()
 
     def __init__(self, database_instance, table, primary_key, **kwargs):

@@ -1,5 +1,5 @@
 from app.app_classes import ActivityChoiceMenu
-from app.core import User, Session
+from app.core import User, Session, ChoiceMenu
 
 if __name__ == '__main__':
     # =============================================================================================
@@ -10,22 +10,17 @@ if __name__ == '__main__':
         # =========================================================================================
         # ACTIVITIES MENU
         # =========================================================================================
-        activity_choice = ActivityChoiceMenu()
+        actual_menu = ActivityChoiceMenu()
         # =========================================================================================
-        # CATEGORIES MENU
+        # CATEGORIES  PRODUCTS OR FAVORITES MENU
         # =========================================================================================
-        category_choice_menu = activity_choice()
-        # =========================================================================================
-        # PRODUCTS MENU
-        # =========================================================================================
-        product_choice_menu = category_choice_menu()
+        while isinstance(actual_menu,ChoiceMenu):
+            actual_menu = actual_menu()
         # =========================================================================================
         # PRODUCT AND SUBSTITUTE
         # =========================================================================================
-        product = product_choice_menu()
-        print(product)
-        substitute_id = product.print_substitute()
-        product.save_to_favorites(new_session.user.id, substitute_id)
+        product = actual_menu()
+
 
     # if scenario 1:
     #     categorie
