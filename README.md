@@ -19,7 +19,7 @@ pip install pipenv
 ```
 
 
-## Mysql/Mariadb tips
+### Mysql/Mariadb tips
 
 If there are a lot of data to insert check this in  mysql CLI:
 
@@ -34,7 +34,7 @@ SET GLOBAL max_allowed_packet=524288000;
 ```
 
 
-## Writing the settings file
+### Writing the settings file
 
 You can copy settings sample to create your own settings file.
 
@@ -162,8 +162,8 @@ JSON_FILES_PATH = {
 ```
 
 
-## Creating Database
-### SQL script to create local database
+### Creating Database
+#### SQL script to create local database
 
 This part use **mysql-connector-python** lib in **Database** class.
  Following action are made in a procedural script using **Database** instance methods: 
@@ -204,7 +204,7 @@ new_database.execute_sql_requests()
  Password is not echoed.
 
  
-### Getting data from OpenFoodFacts API
+#### Getting data from OpenFoodFacts API
 
 Collection of data from OpenFoodFacts API is based on **DataGetter** instances.
 Using write_file method create a json file of the received data.
@@ -228,7 +228,7 @@ You can create a 'mysql_auth_info' module to store user and password to access d
 USER, PASSWORD
 
 
-### Data integration script
+#### Data integration script
 
 Data integration uses **FieldTranslator** to illustrate correspondence between a json value id and 
 table field label.
@@ -277,12 +277,22 @@ new_database.execute_sql_requests(category_insert_query)
 
 ```
 
-## User management
 ### User creation script
 
 To register a new app user in database, you can use 'create_user.py' script.
 
 
+## Launching the program
+
+To launch the program use following command in pur_beurre directory:
+```shell
+python scripts/launcher.py
+```
+
+
+
+
+## Modules and Classes description
 ### Authentication
 
 To store user authentication information during application use, **core.authentication** module 
@@ -296,7 +306,7 @@ user = User('your username', 'your password')
 ```
 
 
-## Session
+### Sessions
 
 **Session** instance is used as a context manager which store : **Database** instance, **User** instance
  and first and previous ChoiceMenu instances in **Session** actual instance.
@@ -311,7 +321,7 @@ with Session(user=User('your username', 'your password')) as new_session:
 ```
 
 
-## Choice menus
+### Menus
 
 **ChoiceMenu** base class and child classes have a **\_\_call\_\_** method which return next class 
 instantiated with needed kwargs.
@@ -330,7 +340,7 @@ menu instances) during instance call
 Property **database** is used to get database to work with.
 
 
-## SQL objects
+### SQL objects
 
 Legacy **SqlData** class only contains \_\_init\_\_ method and \_\_str\_\_ method. It has 
 database, table, primary_key, kwargs attributes to identify sql element in database.
