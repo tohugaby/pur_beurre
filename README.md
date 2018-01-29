@@ -102,6 +102,20 @@ CREATE TABLE IF NOT EXISTS Favorite (
 # DATABASE PARAMETERS
 # =============================================================================================
 HOST = '127.0.0.1'
+mysql_username = ''
+mysql_password = ''
+try:
+    from pur_beurre.mysql_auth_info import USER, PASSWORD
+
+    mysql_username = USER
+    mysql_password = PASSWORD
+except ImportError as e:
+    pass
+except ModuleNotFoundError as e:
+    pass
+except Exception as e:
+    raise e
+
 DATABASE_NAME = 'purbeurre'
 SQL_REQUESTS = [
     ('table', 'user', user),
@@ -205,6 +219,8 @@ category = {
 categories = DataGetter(**category)
 categories.write_file()
 ```
+You can create a 'mysql_auth_info' module to store user and password to access database import 
+USER, PASSWORD
 
 
 #### Data integration script
@@ -257,8 +273,10 @@ new_database.execute_sql_requests(category_insert_query)
 
 
 ### User management
-
 #### User table in database
+
+To register a new app user in database, you can use 'create_user.py' script.
+
 #### Authentication module
 #### Authentication interface
 

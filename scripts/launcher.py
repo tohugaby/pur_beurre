@@ -1,5 +1,7 @@
-from app.app_classes import ActivityChoiceMenu
-from app.core import User, Session, ChoiceMenu
+from app.menus import ActivityChoiceMenu
+from core.authenthication import User
+from core.menus import ChoiceMenu
+from core.sessions import Session
 
 if __name__ == '__main__':
     # =============================================================================================
@@ -14,22 +16,9 @@ if __name__ == '__main__':
         # =========================================================================================
         # CATEGORIES  PRODUCTS OR FAVORITES MENU
         # =========================================================================================
-        while isinstance(actual_menu,ChoiceMenu):
+        while isinstance(actual_menu, ChoiceMenu):
             actual_menu = actual_menu()
         # =========================================================================================
         # PRODUCT AND SUBSTITUTE
         # =========================================================================================
         product = actual_menu()
-
-
-    # if scenario 1:
-    #     categorie
-    #     produit
-    #     afficher substitut
-    #
-    # elif scenario 2:
-    #     favoris
-    #     afficher substitut
-    #
-    # else:
-    #     quitter

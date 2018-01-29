@@ -1,87 +1,6 @@
-# -*- coding: utf8 -*-
-import getpass
 import sys
 
-from database_constructor.database_builder import Database
-from pur_beurre.settings import HOST, DATABASE_NAME
-
-DEFAULT_DATABASE = Database(host=HOST, database=DATABASE_NAME, database_exist=True)
-
-
-class User:
-    """
-    A row of User table representation
-    """
-
-    def __init__(self, username: str = '', password: str = '',
-                 database_instance: Database = DEFAULT_DATABASE):
-        self.database = database_instance
-
-        self.set_username(username)
-        self._set_password(password)
-        print('Hello %s' % self.username)
-
-    @property
-    def id(self):
-        query = """SELECT * FROM User WHERE username='%s'""" % self.username
-        results = self.database.execute_sql_requests([('select', 'User', query), ],
-                                                     dictionary=True)
-        return results[0][0]['id']
-
-    def set_username(self, username):
-        self.username = username
-        while not self.username_is_valid:
-            self.username = input("username : ")
-
-    def _get_password(self):
-        print("Oh no! you can't see this information. What a pity...")
-        return
-
-    def _set_password(self, password):
-        self._password = password
-        while not self.password_is_valid:
-            self._password = getpass.getpass()
-
-    @property
-    def username_is_valid(self):
-        query = """SELECT count(*) FROM User WHERE username='%s' """ % self.username
-        results = self.database.execute_sql_requests([('select', 'User', query)])
-        return results[0][0][0] == 1
-
-    @property
-    def password_is_valid(self):
-        query = """SELECT password FROM User WHERE username='%s'""" % self.username
-        results = self.database.execute_sql_requests([('select', 'User', query)])
-        return results[0][0][0] == self._password
-
-    password = property(_get_password, _set_password)
-
-
-class Session:
-    """
-    A session of use of the app
-    """
-    ACTUAL_INSTANCE = None
-
-    def __init__(self, database_instance: Database = DEFAULT_DATABASE, user: User = None):
-        self.database_instance = database_instance
-        if isinstance(user, User) and user.database == self.database_instance:
-            self.user = user
-        else:
-            self.user = User(database_instance=self.database_instance)
-        self.first_menu = None
-        self.previous_menu = None
-
-    @classmethod
-    def add_instance(cls, instance):
-        cls.ACTUAL_INSTANCE = instance
-
-    def __enter__(self):
-        self.__class__.add_instance(self)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.__class__.add_instance(None)
+from core.sessions import Session
 
 
 class ChoiceMenu:
@@ -193,20 +112,3 @@ class SqlChoiceMenu(ChoiceMenu):
     @property
     def next_kwargs(self):
         return self.choices[self.decision][0][1]
-
-
-class SqlData:
-    """
-    Represent a sql data
-    """
-    SESSION_CLASS = Session
-    printed_fields = list()
-
-    def __init__(self, database_instance, table, primary_key, **kwargs):
-        self.database = database_instance
-        self.table = table
-        self.primary_key = primary_key
-        self.kwargs = kwargs
-
-    def __str__(self):
-        return str(self.primary_key)

@@ -65,6 +65,20 @@ CREATE TABLE IF NOT EXISTS Favorite (
 # DATABASE PARAMETERS
 # =============================================================================================
 HOST = '127.0.0.1'
+mysql_username = ''
+mysql_password = ''
+try:
+    from pur_beurre.mysql_auth_info import USER, PASSWORD
+
+    mysql_username = USER
+    mysql_password = PASSWORD
+except ImportError as e:
+    pass
+except ModuleNotFoundError as e:
+    pass
+except Exception as e:
+    raise e
+
 DATABASE_NAME = 'purbeurre'
 SQL_REQUESTS = [
     ('table', 'user', user),
