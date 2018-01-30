@@ -330,7 +330,7 @@ See also the list of [contributors](https://github.com/tomlemeuch/pur_beurre/gra
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](https://github.com/tomlemeuch/pur_beurre/blob/master/LICENSE) file for details
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](https://github.com/tomlemeuch/pur_beurre/blob/master/LICENSE) file for details
 
 
 
