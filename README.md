@@ -314,4 +314,29 @@ methods to print product data and its substitute (only **Product** instances).
 Product class allows to save a substitute in user favorites.
 
 
+## Contributing
+
+This project do not need pull requests because it is part of a learning path. That is why i can't update it after mentor's validation.
+
+## Versioning
+
+I use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/pur_beurre/init). 
+
+## Authors
+
+* **Tom Gabrièle**
+
+See also the list of [contributors](https://github.com/pur_beurre/contributors) who participated in this project.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
+
+
+
+
+
+
+
+
 
