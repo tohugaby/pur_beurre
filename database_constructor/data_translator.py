@@ -26,7 +26,8 @@ class BaseDataToInsertQueryTranslator:
         """
 
         :param database_name: a database_name
-        :param data_provider: a path to data_provider containing data to translate or a list of dict 
+        :param data_provider: a path to data_provider containing data to translate or
+        a list of dict
         :param table_name: the name of the table concerned by insert query.
         :param fields_translations: a list of FieldTranslator class instance
         """
@@ -71,7 +72,7 @@ class BaseDataToInsertQueryTranslator:
                 try:
                     field_name = self.ordered_sql_fields_names[0][i]
                     field_value = new_row[field_name].replace("'", " ")
-                except KeyError as e:
+                except KeyError:
                     field_value = ""
                 sql_query += "'{}'".format(field_value)
                 if i < len(self.fields_translations) - 1:
@@ -89,7 +90,7 @@ class BaseDataToInsertQueryTranslator:
             print("writing request to %s" % request_file_path)
             with open(request_file_path, 'w') as f:
                 f.write(sql_query)
-        return ('insert', self.table, sql_query)
+        return 'insert', self.table, sql_query
 
     @property
     def file_reader(self):

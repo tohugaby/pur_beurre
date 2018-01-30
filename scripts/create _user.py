@@ -14,7 +14,8 @@ def main():
     passwd = getpass.getpass()
     query = """INSERT INTO User (username,password) VALUES ('%s','%s')""" % (user, passwd)
     database = Database(host=HOST, database=DATABASE_NAME, database_exist=True)
-    database.execute_sql_requests([('insert', 'User', query),])
+    database.execute_sql_requests([('insert', 'User', query), ])
+
 
 if __name__ == '__main__':
     main()

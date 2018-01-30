@@ -12,7 +12,8 @@ class BaseProduct(SqlData):
     def __str__(self):
         return self.show_product(**self.data)
 
-    def show_product(self, **data):
+    @staticmethod
+    def show_product(**data):
         product_card = """
         code: {id}    nom: {product_name}
         categories: {categories}  
@@ -32,8 +33,8 @@ class BaseProduct(SqlData):
              """
             SELECT 
             DISTINCT P.id,P.product_name,P.description,P.nutrition_grade_fr,P.first_seller,
-            P.open_food_facts_url , GROUP_CONCAT(DISTINCT(C.cat_name) ORDER BY cat_name SEPARATOR ' | ') as 
-            categories
+            P.open_food_facts_url , 
+            GROUP_CONCAT(DISTINCT(C.cat_name) ORDER BY cat_name SEPARATOR ' | ') as categories
             FROM Product P
             INNER JOIN Product_category Pc ON P.id = Pc.product_id
             INNER JOIN Category C ON Pc.category_id = C.id
@@ -99,7 +100,6 @@ class Product(BaseProduct):
     def save_to_favorites(self, product_id):
         """
         Save substitute product in provided user favorites
-        :param user_id: user primary key value in User table
         :param product_id: product primary key in Product table
         :return: favorite id
         """

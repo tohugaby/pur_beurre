@@ -113,8 +113,7 @@ def main():
         for category in categories:
             if category in valid_ids['Category']:
                 logger.info("Added Category %s" % category)
-                product_category_links.append({'product_id': product_id, 'category_id':
-                    category})
+                product_category_links.append({'product_id': product_id, 'category_id': category})
             else:
                 logger.info("Unused Category %s" % category)
 

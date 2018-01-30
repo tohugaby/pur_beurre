@@ -12,7 +12,8 @@ class User:
     def __init__(self, username: str = '', password: str = '',
                  database_instance: Database = DEFAULT_DATABASE):
         self.database = database_instance
-
+        self.username = ''
+        self.password = ''
         self.set_username(username)
         self._set_password(password)
         print('Hello %s' % self.username)
