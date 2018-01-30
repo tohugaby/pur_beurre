@@ -17,7 +17,11 @@ You need to install pipenv on your system.
 ```
 pip install pipenv
 ```
+In project directory run following command to create virtual environment install dependencies:
 
+```
+pipenv install
+```
 
 ### Mysql/Mariadb tips
 
@@ -26,33 +30,36 @@ If there are a lot of data to insert check this in  mysql CLI:
 ```mysql
 show variables like 'max_allowed_packet';
 ```
-If result is something like 1048576 bytes (1MB), you can increase it to 524288000 in my.cnf file
- or with mysql command:
+If result is something like 1048576 bytes (1MB), you can increase it to 524288000 in my.cnf file or with mysql command:
  
- ```mysql
+ 
+```mysql
 SET GLOBAL max_allowed_packet=524288000;
 ```
-
 
 ### Writing the settings file
 
 You can copy settings sample to create your own settings file.
 
-example:
-```python
+#### Path settings
 
+```python
 import os
 
-# =============================================================================================
+#=============================================================================================
 # PATH PARAMETERS
-# =============================================================================================
+#=============================================================================================
 ROOT_DIR_PATH = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 JSON_DIR_NAME = 'json_files'
 JSON_DIR_PATH = os.path.join(ROOT_DIR_PATH, JSON_DIR_NAME)
+```
 
-# =============================================================================================
+#### Mysql requests
+
+```python
+#=============================================================================================
 # MYSQL REQUESTS
-# =============================================================================================
+#=============================================================================================
 user = """
 CREATE TABLE IF NOT EXISTS User (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -61,51 +68,15 @@ CREATE TABLE IF NOT EXISTS User (
   )
   ENGINE=InnoDB
 """
+#...
+```
 
-category = """
-CREATE TABLE IF NOT EXISTS Category (
-  id VARCHAR(255) NOT NULL PRIMARY KEY,
-  cat_name VARCHAR(255) NOT NULL
-  )
-  ENGINE=InnoDB
-"""
+#### Databse settings
 
-product = """
-CREATE TABLE IF NOT EXISTS Product (
-  id BIGINT UNSIGNED NOT NULL PRIMARY KEY ,
-  product_name VARCHAR(255) NOT NULL,
-  description TEXT,
-  open_food_facts_url VARCHAR(255),
-  first_seller VARCHAR(255),
-  nutrition_grade_fr CHAR(1) NOT NULL)
-  ENGINE=InnoDB
-"""
-
-product_category = """
-CREATE TABLE IF NOT EXISTS Product_category (
-  product_id BIGINT UNSIGNED NOT NULL,
-  category_id VARCHAR(255) NOT NULL,
-  CONSTRAINT pk_product_category PRIMARY KEY (product_id, category_id),
-  CONSTRAINT fk_product_id FOREIGN KEY (product_id) REFERENCES Product(id),
-  CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES Category(id)
-  )
-  ENGINE=InnoDB
-"""
-
-favorite = """
-CREATE TABLE IF NOT EXISTS Favorite (
-  product_id BIGINT UNSIGNED NOT NULL,
-  user_id INT  UNSIGNED NOT NULL,
-  CONSTRAINT pk_favorite PRIMARY KEY (product_id, user_id),
-  CONSTRAINT fk_favorite_product_id FOREIGN KEY (product_id) REFERENCES Product(id),
-  CONSTRAINT fk_favorite_user_id FOREIGN KEY (user_id) REFERENCES User(id)
-  )
-  ENGINE=InnoDB
-"""
-
-# =============================================================================================
+```python
+#=============================================================================================
 # DATABASE PARAMETERS
-# =============================================================================================
+#=============================================================================================
 HOST = '127.0.0.1'
 mysql_username = ''
 mysql_password = ''
@@ -124,17 +95,18 @@ except Exception as e:
 DATABASE_NAME = 'purbeurre'
 SQL_REQUESTS = [
     ('table', 'user', user),
-    ('table', 'category', category),
-    ('table', 'product', product),
-    ('table', 'product_category', product_category),
-    ('table', 'favorite', favorite),
+    #...
     ('constraint', None, None),
     ('index', None, None)
 ]
+```
 
-# =============================================================================================
+#### DataGetters settings
+
+```python
+#=============================================================================================
 # DATAGETTERS PARAMETERS
-# =============================================================================================
+#=============================================================================================
 DATA_GETTER_PARAMETERS = {
     'product': {
         'root_url': 'https://fr.openfoodfacts.org/lieu-de-vente/france/lieu-de-fabrication/france.json',
@@ -158,7 +130,6 @@ JSON_FILES_PATH = {
     'category': os.path.join(JSON_DIR_PATH, 'Category.json'),
     'product': os.path.join(JSON_DIR_PATH, 'Product.json')
 }
-
 ```
 
 
@@ -174,7 +145,8 @@ This part use **mysql-connector-python** lib in **Database** class.
 
 
 Usage:
-  ```python
+
+```python
 from database_constructor.database_builder import Database
 HOST = '127.0.0.1'
 DATABASE_NAME = 'purbeurre'
@@ -196,7 +168,6 @@ new_database = Database(host=HOST, database=DATABASE_NAME, sql_requests=SQL_REQU
 new_database.create_database()
 # launch all the request from instance
 new_database.execute_sql_requests()
-
 ```
   
  For connection initialization you need a mysql username and password. 
@@ -234,7 +205,6 @@ Data integration uses **FieldTranslator** to illustrate correspondence between a
 table field label.
 
 ```python
-
 from database_constructor.data_translator import  FieldTranslator
 
 category_fields_translations = [FieldTranslator('id', 'id'), FieldTranslator('name', 'cat_name')]
@@ -245,7 +215,6 @@ category_fields_translations = [FieldTranslator('id', 'id'), FieldTranslator('na
 data to an sql insert query thanks to its **translate_object_to_sql_query** method.
 
 ```python
-
 from database_constructor.data_translator import JSONDataToInsertQueryTranslator, FieldTranslator
 
 category_fields_translations = [FieldTranslator('id', 'id'), FieldTranslator('name', 'cat_name')]
@@ -259,7 +228,6 @@ Last step to integrate data in database is to use
 
 
 ```python
-
 from database_constructor.database_builder import Database
 from database_constructor.data_translator import JSONDataToInsertQueryTranslator, FieldTranslator
 
@@ -274,7 +242,6 @@ category_translator = JSONDataToInsertQueryTranslator('purbeurre',
 
 category_insert_query = [('insert', 'Category', category_translator.translate_object_to_sql_query()),]
 new_database.execute_sql_requests(category_insert_query)
-
 ```
 
 ### User creation script
@@ -288,9 +255,6 @@ To launch the program use following command in pur_beurre directory:
 ```shell
 python scripts/launcher.py
 ```
-
-
-
 
 ## Modules and Classes description
 ### Authentication
