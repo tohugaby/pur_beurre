@@ -320,17 +320,17 @@ This project do not need pull requests because it is part of a learning path. Th
 
 ## Versioning
 
-I use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/pur_beurre/init). 
+I use [SemVer](http://semver.org/) for versioning. 
 
 ## Authors
 
 * **Tom Gabrièle**
 
-See also the list of [contributors](https://github.com/pur_beurre/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/tomlemeuch/pur_beurre/graphs/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](https://github.com/tomlemeuch/pur_beurre/blob/master/LICENSE) file for details
 
 
 
