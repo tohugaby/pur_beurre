@@ -1,4 +1,7 @@
 # -*- coding: utf8 -*-
+"""
+Provides tools to translate data to an sql insert query.
+"""
 import copy
 import json
 
@@ -60,7 +63,6 @@ class BaseDataToInsertQueryTranslator:
         :return: a string containing sql query
         """
 
-        # TODO: rewrite sql query with %s syntax and pass parameter to
         sql_query = "INSERT INTO {} ( ".format(self.table)
         filtered_values = self.filtered_values()
 
@@ -84,12 +86,11 @@ class BaseDataToInsertQueryTranslator:
                 sql_query += ","
 
         if save_query_to_file:
-            request_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-                __file__))),
-                'insert_%s.sql' % self.table)
+            request_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                             'insert_%s.sql' % self.table)
             print("writing request to %s" % request_file_path)
-            with open(request_file_path, 'w') as f:
-                f.write(sql_query)
+            with open(request_file_path, 'w') as file:
+                file.write(sql_query)
         return 'insert', self.table, sql_query
 
     @property
@@ -130,8 +131,8 @@ class JSONDataToInsertQueryTranslator(BaseDataToInsertQueryTranslator):
             try:
                 with self.file_reader as read_file:
                     rows = json.loads(read_file.read())
-            except TypeError as e:
-                print("Data provider should be a path or a list of dict. It's is not!:%s" % e)
+            except TypeError as error:
+                print("Data provider should be a path or a list of dict. It's is not!:%s" % error)
         elif isinstance(self.data_provider, list):
             rows = copy.deepcopy(self.data_provider)
         return rows

@@ -1,12 +1,14 @@
 # -*- coding: utf8 -*-
-
+"""
+A script to register a new user in User table.
+"""
 import getpass
 import logging
 
 from database_constructor.database_builder import Database
 from pur_beurre.settings import HOST, DATABASE_NAME
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def main():

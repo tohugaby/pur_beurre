@@ -1,0 +1,5 @@
+[REPORTS]
+max-line-length=120
+msg-template={abspath}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+
+score=yes

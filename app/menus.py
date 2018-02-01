@@ -1,3 +1,7 @@
+# -*- coding: utf8 -*-
+"""
+Module for pur_beurre menu classes inherited from core menu classes
+"""
 from app.sql_objects import BaseProduct, Product
 from core.menus import ChoiceMenu, SqlChoiceMenu
 
@@ -8,6 +12,7 @@ class ActivityChoiceMenu(ChoiceMenu):
     """
 
     def get_text(self):
+        """return choice explanation text"""
         return 'Choisissez une action (or q for quit) : '
 
     def get_choices(self):
@@ -22,13 +27,16 @@ class CategoryChoiceMenu(SqlChoiceMenu):
     """
     Menu which proposes choices within categories
     """
-    query = """SELECT PC.category_id, C.cat_name FROM Product_category PC 
-INNER JOIN Category C ON PC.category_id = C.id
-INNER JOIN Product P ON PC.product_id = P.id  
-WHERE PC.category_id = C.id AND P.nutrition_grade_fr<>''
-GROUP BY PC.category_id, C.cat_name HAVING count(*)> 15"""
+    query = """
+    SELECT PC.category_id, C.cat_name FROM Product_category PC 
+    INNER JOIN Category C ON PC.category_id = C.id
+    INNER JOIN Product P ON PC.product_id = P.id  
+    WHERE PC.category_id = C.id AND P.nutrition_grade_fr<>''
+    GROUP BY PC.category_id, C.cat_name HAVING count(*)> 15
+    """
 
     def get_text(self):
+        """return choice explanation text"""
         return "Choisissez une catégorie (or q for quit/ p for previous choice menu) : "
 
     def print_choices(self):
@@ -44,9 +52,11 @@ class ProductChoiceMenu(SqlChoiceMenu):
     """
     Menu which proposes choices within product attached to provided category
     """
-    query = """SELECT * FROM Product_category PC 
-INNER JOIN Product P ON PC.product_id = P.id 
-WHERE PC.category_id='%s' AND P.nutrition_grade_fr<>''"""
+    query = """
+    SELECT * FROM Product_category PC 
+    INNER JOIN Product P ON PC.product_id = P.id 
+    WHERE PC.category_id='%s' AND P.nutrition_grade_fr<>''
+    """
     query_parameters = ['category_id', ]
 
     def get_text(self):
@@ -74,12 +84,14 @@ class FavoriteChoiceMenu(SqlChoiceMenu):
     """
     Menu which proposes choices within user favorites
     """
-    query = """SELECT * FROM Favorite F 
-INNER JOIN Product P ON F.product_id = P.id 
-WHERE F.user_id='%s'"""
+    query = """
+    SELECT * FROM Favorite F 
+    INNER JOIN Product P ON F.product_id = P.id 
+    WHERE F.user_id='%s'
+    """
     query_parameters = ['user_id', ]
 
-    def __init__(self, text='', choices: list = list(), **kwargs):
+    def __init__(self, text='', choices: list = None, **kwargs):
         """
         :param text: description of action
         :param choices: a list of tuple with text description and linked Class nam

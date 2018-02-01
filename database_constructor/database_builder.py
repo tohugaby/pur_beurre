@@ -1,4 +1,7 @@
 # -*- coding: utf8 -*-
+"""
+Managers and classes to create a database instance and execute query into this mysql database.
+"""
 import getpass
 import logging
 
@@ -7,8 +10,8 @@ from mysql.connector import errorcode
 
 from pur_beurre import settings
 
-logger = logging.getLogger(__name__)
-logger.setLevel('INFO')
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel('INFO')
 
 
 class ConnectionManager(object):
@@ -90,10 +93,10 @@ class Database:
                 return connection
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_BAD_DB_ERROR:
-                    logger.error('ERROR Bad or not existing database :%s')
+                    LOGGER.error('ERROR Bad or not existing database :%s')
                 else:
-                    logger.error('ERROR:%s' % err)
-                logger.warning(
+                    LOGGER.error('ERROR:%s' % err)
+                LOGGER.warning(
                     "Database %s is not created. Connection without database." % self.database)
             finally:
                 return self.connection_manager(user=self.user, password=self.password,
@@ -123,20 +126,20 @@ class Database:
                     self.database_created = True
 
                 except mysql.connector.errors.DatabaseError as err:
-                    logger.warning("WARNING Failed creating database: {}".format(err))
+                    LOGGER.warning("WARNING Failed creating database: {}".format(err))
                     self.database_created = True
 
                 except mysql.connector.Error as err:
-                    logger.error("ERROR Failed creating database: {}".format(err))
+                    LOGGER.error("ERROR Failed creating database: {}".format(err))
 
             try:
                 connection.database = self.database
                 self.database_created = True
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_BAD_DB_ERROR:
-                    logger.error('ERROR Bad or not existing database :%s')
+                    LOGGER.error('ERROR Bad or not existing database :%s')
                 else:
-                    logger.error('ERROR:%s' % err)
+                    LOGGER.error('ERROR:%s' % err)
 
     def drop_database(self):
         # open connection with a context manager
@@ -154,10 +157,10 @@ class Database:
                     return cursor
 
                 except mysql.connector.errors.DatabaseError as err:
-                    logger.warning("WARNING Failed deleting database: {}".format(err))
+                    LOGGER.warning("WARNING Failed deleting database: {}".format(err))
 
                 except mysql.connector.Error as err:
-                    logger.error("ERROR Failed creating database: {}".format(err))
+                    LOGGER.error("ERROR Failed creating database: {}".format(err))
 
     def execute_sql_requests(self, requests: list = None, **kwargs):
         """
@@ -176,7 +179,7 @@ class Database:
             with self.get_cursor(connection, dictionary=dictionary) as cursor_context:
                 cursor = cursor_context.cursor
                 for query in sql_requests:
-                    logger.info("Execute query %s %s :%s" % (query[0], query[1], query[2]))
+                    LOGGER.info("Execute query %s %s :%s" % (query[0], query[1], query[2]))
                     try:
                         if query[2]:
                             cursor.execute(query[2])
@@ -189,5 +192,5 @@ class Database:
                         else:
                             raise err
                     except Exception as e:
-                        logger.error(e)
+                        LOGGER.error(e)
         return results

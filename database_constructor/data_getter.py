@@ -1,4 +1,7 @@
 # -*- coding: utf8 -*-
+"""
+Contains classes to get data from OpenFoodFacts Web API.
+"""
 
 import json
 import os
@@ -12,7 +15,7 @@ from pur_beurre.settings import JSON_DIR_PATH
 
 class DataGetter:
     """
-    a json data getter on openfoodfacts api.
+    A json data getter on openfoodfacts api.
     """
 
     def __init__(self, root_url='', first_page=1, page_getter_limit=0, paginated_data=False,
@@ -27,7 +30,7 @@ class DataGetter:
 
     def get_paginated_url(self, page):
         """
-        if api provide several pages for a ressource, the ressource root url is rewritted for
+        If api provide several pages for a ressource, the ressource root url is rewritted for
         each requested page.
         :param page: number of requested page.
         :return: paginated url
@@ -35,17 +38,24 @@ class DataGetter:
         url_without_extension = re.split(r'\.json', self.root_url)[0]
         if self.paginated_data:
             return url_without_extension + '/' + str(page) + '.json'
-        else:
-            return self.root_url
+        return self.root_url
 
     @staticmethod
     def get_data(url):
+        """
+        Get data from provided url and return json
+        :param url: the url from where to get data
+        :return: json data
+        """
         print("getting data from %s" % url)
         return requests.get(url).json()
 
     @property
     def file_path(self):
-
+        """
+        Get or create json file and containing folder.
+        :return: file path
+        """
         if os.path.exists(JSON_DIR_PATH):
             file_path = os.path.join(JSON_DIR_PATH, self.filename)
         else:
@@ -54,6 +64,10 @@ class DataGetter:
         return file_path
 
     def write_file(self):
+        """
+        Write getted data in JSON file.
+        :return: None
+        """
         url = self.get_paginated_url(self.first_page)
 
         if not os.path.exists(self.file_path):

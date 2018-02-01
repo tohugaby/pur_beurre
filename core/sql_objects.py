@@ -1,3 +1,7 @@
+# -*- coding: utf8 -*-
+"""
+Contains classes that represent an sql object.
+"""
 from core.sessions import Session
 
 
