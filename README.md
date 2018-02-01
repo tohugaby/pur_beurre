@@ -11,6 +11,9 @@ healthier one.
 
 ## Getting starded
 
+You need to install Mariadb/Mysql on your system.
+
+
 **Pipenv** is used to manage dependencies and virtual environment. 
 You need to install pipenv on your system.
 
@@ -22,6 +25,20 @@ In project directory run following command to create virtual environment install
 ```
 pipenv install
 ```
+
+In pur_beurre library (you can find settings file and settings sample), add a file called "mysql_auth_info.py"
+```python
+# -*- coding: utf8 -*-
+"""
+Contains username and password to connect to database
+"""
+
+USER = 'your mysql user name who has sufficient privileges to create database'
+PASSWORD = 'your password'
+
+``` 
+
+
 
 ### Mysql/Mariadb tips
 
@@ -60,14 +77,16 @@ JSON_DIR_PATH = os.path.join(ROOT_DIR_PATH, JSON_DIR_NAME)
 #=============================================================================================
 # MYSQL REQUESTS
 #=============================================================================================
-user = """
-CREATE TABLE IF NOT EXISTS User (
+REQUESTS = {
+    'user': """
+  CREATE TABLE IF NOT EXISTS User (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(255)  NOT NULL UNIQUE,
   password VARCHAR(255)  NOT NULL
   )
   ENGINE=InnoDB
-"""
+""",
+}
 #...
 ```
 
@@ -78,24 +97,21 @@ CREATE TABLE IF NOT EXISTS User (
 # DATABASE PARAMETERS
 #=============================================================================================
 HOST = '127.0.0.1'
-mysql_username = ''
-mysql_password = ''
+MYSQL_USERNAME = ''
+MYSQL_PASSWORD = ''
 try:
-    from pur_beurre.mysql_auth_info import USER, PASSWORD
+    from pur_beurre.mysql_auth_info import USERNAME, PASSWORD
 
-    mysql_username = USER
-    mysql_password = PASSWORD
-except ImportError as e:
+    MYSQL_USERNAME = USERNAME
+    MYSQL_PASSWORD = PASSWORD
+except ModuleNotFoundError as error:
     pass
-except ModuleNotFoundError as e:
-    pass
-except Exception as e:
-    raise e
+except Exception as error:
+    raise error
 
 DATABASE_NAME = 'purbeurre'
 SQL_REQUESTS = [
-    ('table', 'user', user),
-    #...
+    ('table', 'user', REQUESTS['user']),
     ('constraint', None, None),
     ('index', None, None)
 ]

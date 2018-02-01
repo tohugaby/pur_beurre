@@ -1,4 +1,7 @@
 # -*- coding: utf8 -*-
+"""
+Settings to launch the app.
+"""
 import os
 
 # =============================================================================================
@@ -11,24 +14,27 @@ JSON_DIR_PATH = os.path.join(ROOT_DIR_PATH, JSON_DIR_NAME)
 # =============================================================================================
 # MYSQL REQUESTS
 # =============================================================================================
-user = """
+
+REQUESTS = {
+
+    'user': """
 CREATE TABLE IF NOT EXISTS User (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(255)  NOT NULL UNIQUE,
   password VARCHAR(255)  NOT NULL
   )
   ENGINE=InnoDB
-"""
+""",
 
-category = """
+    'category': """
 CREATE TABLE IF NOT EXISTS Category (
   id VARCHAR(255) NOT NULL PRIMARY KEY,
   cat_name VARCHAR(255) NOT NULL
   )
   ENGINE=InnoDB
-"""
+""",
 
-product = """
+    'product': """
 CREATE TABLE IF NOT EXISTS Product (
   id BIGINT UNSIGNED NOT NULL PRIMARY KEY ,
   product_name VARCHAR(255) NOT NULL,
@@ -37,9 +43,9 @@ CREATE TABLE IF NOT EXISTS Product (
   first_seller VARCHAR(255),
   nutrition_grade_fr CHAR(1) NOT NULL)
   ENGINE=InnoDB
-"""
+""",
 
-product_category = """
+    'product_category': """
 CREATE TABLE IF NOT EXISTS Product_category (
   product_id BIGINT UNSIGNED NOT NULL,
   category_id VARCHAR(255) NOT NULL,
@@ -48,9 +54,9 @@ CREATE TABLE IF NOT EXISTS Product_category (
   CONSTRAINT fk_category_id FOREIGN KEY (category_id) REFERENCES Category(id)
   )
   ENGINE=InnoDB
-"""
+""",
 
-favorite = """
+    'favorite': """
 CREATE TABLE IF NOT EXISTS Favorite (
   product_id BIGINT UNSIGNED NOT NULL,
   user_id INT  UNSIGNED NOT NULL,
@@ -61,31 +67,31 @@ CREATE TABLE IF NOT EXISTS Favorite (
   ENGINE=InnoDB
 """
 
+}
+
 # =============================================================================================
 # DATABASE PARAMETERS
 # =============================================================================================
 HOST = '127.0.0.1'
-mysql_username = ''
-mysql_password = ''
+MYSQL_USERNAME = ''
+MYSQL_PASSWORD = ''
 try:
-    from pur_beurre.mysql_auth_info import USER, PASSWORD
+    from pur_beurre.mysql_auth_info import USERNAME, PASSWORD
 
-    mysql_username = USER
-    mysql_password = PASSWORD
-except ImportError as e:
+    MYSQL_USERNAME = USERNAME
+    MYSQL_PASSWORD = PASSWORD
+except ModuleNotFoundError as error:
     pass
-except ModuleNotFoundError as e:
-    pass
-except Exception as e:
-    raise e
+except Exception as error:
+    raise error
 
 DATABASE_NAME = 'purbeurre'
 SQL_REQUESTS = [
-    ('table', 'user', user),
-    ('table', 'category', category),
-    ('table', 'product', product),
-    ('table', 'product_category', product_category),
-    ('table', 'favorite', favorite),
+    ('table', 'user', REQUESTS['user']),
+    ('table', 'category', REQUESTS['category']),
+    ('table', 'product', REQUESTS['product']),
+    ('table', 'product_category', REQUESTS['product_category']),
+    ('table', 'favorite', REQUESTS['favorite']),
     ('constraint', None, None),
     ('index', None, None)
 ]

@@ -25,6 +25,7 @@ class ConnectionManager(object):
         self.password = password
         if 'database' in kwargs.keys():
             self.database = kwargs['database']
+        self.connection = None
 
     def __enter__(self):
         if hasattr(self, 'database'):
@@ -48,6 +49,7 @@ class CursorManager(object):
     def __init__(self, connection, dictionary=False):
         self.connection = connection
         self.dictionary = dictionary
+        self.cursor = None
 
     def __enter__(self):
         self.cursor = self.connection.cursor(dictionary=self.dictionary)
@@ -64,14 +66,14 @@ class Database:
     connection_manager = ConnectionManager
     cursor_manager = CursorManager
 
-    def __init__(self, host, database, sql_requests=[], database_exist=False):
+    def __init__(self, host, database, sql_requests: list = None, database_exist=False):
         self.host = host
         self.database = database
         self.sql_requests = sql_requests
 
         self.user = input(
-            'mysql username : ') if settings.mysql_username == '' else settings.mysql_username
-        self.password = getpass.getpass() if settings.mysql_password == '' else settings.mysql_password
+            'mysql username : ') if settings.MYSQL_USERNAME == '' else settings.MYSQL_USERNAME
+        self.password = getpass.getpass() if settings.MYSQL_PASSWORD == '' else settings.MYSQL_PASSWORD
 
         self.database_created = database_exist
 
@@ -93,11 +95,11 @@ class Database:
                 return connection
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_BAD_DB_ERROR:
-                    LOGGER.error('ERROR Bad or not existing database :%s')
+                    LOGGER.error('ERROR Bad or not existing database: %s', err)
                 else:
-                    LOGGER.error('ERROR:%s' % err)
+                    LOGGER.error("ERROR: %s", err)
                 LOGGER.warning(
-                    "Database %s is not created. Connection without database." % self.database)
+                    "Database %s is not created. Connection without database.", self.database)
             finally:
                 return self.connection_manager(user=self.user, password=self.password,
                                                host=self.host)
@@ -111,7 +113,10 @@ class Database:
         return self.cursor_manager(connection, dictionary)
 
     def create_database(self):
-        """Method to create database"""
+        """
+        Method to create database.
+        :return: None
+        """
 
         # open connection with a context manager
         with self.get_connection() as connection_context:
@@ -126,22 +131,26 @@ class Database:
                     self.database_created = True
 
                 except mysql.connector.errors.DatabaseError as err:
-                    LOGGER.warning("WARNING Failed creating database: {}".format(err))
+                    LOGGER.warning("WARNING Failed creating database: %s", err)
                     self.database_created = True
 
                 except mysql.connector.Error as err:
-                    LOGGER.error("ERROR Failed creating database: {}".format(err))
+                    LOGGER.error("ERROR Failed creating database: %s", err)
 
             try:
                 connection.database = self.database
                 self.database_created = True
             except mysql.connector.Error as err:
                 if err.errno == errorcode.ER_BAD_DB_ERROR:
-                    LOGGER.error('ERROR Bad or not existing database :%s')
+                    LOGGER.error('ERROR Bad or not existing database : %s', err)
                 else:
-                    LOGGER.error('ERROR:%s' % err)
+                    LOGGER.error('ERROR: %s', err)
 
     def drop_database(self):
+        """
+        Method to drop database.
+        :return: None
+        """
         # open connection with a context manager
         with self.get_connection() as cnx_context:
             connection = cnx_context.connection
@@ -157,15 +166,15 @@ class Database:
                     return cursor
 
                 except mysql.connector.errors.DatabaseError as err:
-                    LOGGER.warning("WARNING Failed deleting database: {}".format(err))
+                    LOGGER.warning("WARNING Failed deleting database: %s", err)
 
                 except mysql.connector.Error as err:
-                    LOGGER.error("ERROR Failed creating database: {}".format(err))
+                    LOGGER.error("ERROR Failed creating database: %s", err)
 
     def execute_sql_requests(self, requests: list = None, **kwargs):
         """
-        Execute all requests from instance attribute sql_requests or specific provided requests
-        :return:
+        Execute all requests from instance attribute sql_requests or specific provided requests.
+        :return: a list of results
         """
         dictionary = False
         if 'dictionary' in kwargs.keys():
@@ -179,7 +188,7 @@ class Database:
             with self.get_cursor(connection, dictionary=dictionary) as cursor_context:
                 cursor = cursor_context.cursor
                 for query in sql_requests:
-                    LOGGER.info("Execute query %s %s :%s" % (query[0], query[1], query[2]))
+                    LOGGER.info("Execute query %s %s :%s", query[0], query[1], query[2])
                     try:
                         if query[2]:
                             cursor.execute(query[2])
@@ -191,6 +200,6 @@ class Database:
                             pass
                         else:
                             raise err
-                    except Exception as e:
-                        LOGGER.error(e)
+                    except Exception as error:
+                        LOGGER.error(error)
         return results

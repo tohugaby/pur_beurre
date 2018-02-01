@@ -1,5 +1,7 @@
 # -*- coding: utf8 -*-
-
+"""
+Script to construct database from OpenFoodFacts json data.
+"""
 import json
 import logging
 import os
@@ -10,7 +12,7 @@ from database_constructor.database_builder import Database
 from pur_beurre.settings import HOST, DATABASE_NAME, SQL_REQUESTS, JSON_DIR_PATH, \
     DATA_GETTER_PARAMETERS, JSON_FILES_PATH
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def main():
@@ -112,10 +114,10 @@ def main():
     for product_id, categories in categories_by_product:
         for category in categories:
             if category in valid_ids['Category']:
-                logger.info("Added Category %s" % category)
+                LOGGER.info("Added Category %s", category)
                 product_category_links.append({'product_id': product_id, 'category_id': category})
             else:
-                logger.info("Unused Category %s" % category)
+                LOGGER.info("Unused Category %s", category)
 
     # =============================================================================================
     # Creating insert request
