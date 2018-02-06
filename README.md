@@ -188,6 +188,7 @@ new_database.execute_sql_requests()
   
  For connection initialization you need a mysql username and password. 
  Used mysql user need sufficient privileges to create database.
+ If settings.MYSQL_USERNAME and if settings.MYSQL_PASSWORD are empty strings, there will be asked.
  Password is not echoed.
 
  
