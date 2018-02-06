@@ -7,11 +7,16 @@ name = "pypi"
 
 [packages]
 
-"flake8" = "*"
-requests = "*"
 mysql-connector-python = "*"
-pylint = "*"
+requests = "*"
 
 
 [dev-packages]
 
+"flake8" = "*"
+pylint = "*"
+
+
+[requires]
+
+python_version = "3.6"
